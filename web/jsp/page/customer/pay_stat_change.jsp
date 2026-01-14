@@ -1,0 +1,85 @@
+<%-- 
+    Document   : update_artist
+    Created on : 21 Mar, 2018, 11:51:04 AM
+    Author     : mkl
+--%>
+
+<%@page import="java.sql.SQLException"%>
+<%@page import="java.sql.Date"%>
+<%@page import="tools.getdata"%>
+<%@page import="java.io.IOException"%>
+<%@page import="java.sql.ResultSet"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.PreparedStatement"%>
+<%@page import="java.sql.Connection"%>
+<%@page import="java.util.logging.Logger"%>
+<%@page import="java.util.logging.Level"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
+    <body>
+        <div class="content">
+            <%!
+                private String dburl = getdata.url();
+                private String dbuser = getdata.user();
+                private String dbpass = getdata.password();
+                String userid;
+                 private String q;
+                long uid;
+String cid;
+String id;
+String aid;
+String pstat;
+String odate;
+Date o_date;
+long art_id;
+long c_id;
+long o_id;
+            %>
+            <%
+                 cid = (String) session.getAttribute("customer");
+               id = request.getParameter("order_id");
+               aid = request.getParameter("art_id");
+               pstat = request.getParameter("p_stat");
+               odate = request.getParameter("o_date");
+               o_date = Date.valueOf(odate);
+              o_id = Long.parseLong(id);
+              c_id = Long.parseLong(cid);
+              art_id = Long.parseLong(aid);
+               q = "update orderdb set pay_status='2' where order_id=? and c_id=? and art_id=?";
+               Class.forName("com.mysql.jdbc.Driver");  // MySQL database connection
+                if (pstat.equals("0")) {
+                    try (Connection con = DriverManager.getConnection(dburl, dbuser, dbpass)) {
+                        try (PreparedStatement ps = con.prepareStatement(q)) {
+                            ps.setLong(1, o_id);
+                            ps.setLong(2, c_id);
+                            ps.setLong(3, art_id);
+                            int rs = ps.executeUpdate();
+                            if (rs > 0) {
+                                out.println("Payment_recorded");
+            %>
+            <input type="button" value="go to home" onclick='redirect("<%=request.getContextPath()%>/cart.jsp");'>
+            <%
+            } else {
+                out.println("Payment Failed");
+            %>
+            <input type="button" value="go to home" onclick='redirect("<%=request.getContextPath()%>/cart.jsp");'>
+            <%
+                            }
+                            ps.close();
+                        } catch (IOException | SQLException ex) {
+                            out.print(ex);
+                        }
+                        con.close();
+                    } catch (IOException | SQLException ex) {
+                        out.print(ex);
+                    }
+                }
+            %>
+        </div>
+    </body>
+</html>
